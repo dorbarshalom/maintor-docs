@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "maintor"
+  },
+  "targets": {
+    "maintor": {
+      "hosting": {
+        "maintor-docs": [
+          "maintor-docs"
+        ]
+      }
+    }
+  }
+}

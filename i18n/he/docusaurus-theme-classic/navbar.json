@@ -1,0 +1,10 @@
+{
+  "title": {
+    "message": "Maintor",
+    "description": "The title in the navbar"
+  },
+  "item.label.Documentation": {
+    "message": "תיעוד",
+    "description": "Navbar item label for Documentation"
+  }
+}

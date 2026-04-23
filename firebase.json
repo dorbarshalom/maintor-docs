@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "target": "maintor-docs",
+    "public": "build",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false
+  }
+}

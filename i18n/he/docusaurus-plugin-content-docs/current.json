@@ -1,0 +1,22 @@
+{
+  "sidebar.docsSidebar.category.Knowledgebase": {
+    "message": "מרכז ידע",
+    "description": "The label for the Knowledgebase category in the docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Frontend Development": {
+    "message": "פיתוח פרונטאנד",
+    "description": "The label for the Frontend Development category in the docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Backend & Architecture": {
+    "message": "בקאנד וארכיטקטורה",
+    "description": "The label for the Backend & Architecture category in the docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Third-Party Integrations": {
+    "message": "אינטגרציות צד שלישי",
+    "description": "The label for the Third-Party Integrations category in the docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Implementation Guides": {
+    "message": "מדריכי הטמעה",
+    "description": "The label for the Implementation Guides category in the docsSidebar"
+  }
+}
