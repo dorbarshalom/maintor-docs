@@ -12,9 +12,9 @@ This guide explains the structure of account team members and how accounts can i
 
 ### Users and Accounts
 
-- **Account**: An organization/company that uses the Maintor system
-- **User**: An individual person who belongs to an account
-- **Role**: Permissions assigned to a user within an account or at specific sites
+- **Account**: An organization/company that uses the Maintor system (acting as a workspace).
+- **User**: An individual person who can belong to one or more accounts. Users can switch between account contexts seamlessly.
+- **Role**: Permissions assigned to a user within a specific account context or at specific sites under that account. Role documents are mapped directly per account context.
 
 ### User Roles
 

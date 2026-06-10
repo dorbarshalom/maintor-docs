@@ -2,13 +2,17 @@
 
 ## Overview
 
-Users are invited to join an account via email. The invitation email contains a JWT token in the URL. The frontend flow is:
+Users are invited to join an account via email. The invitation email contains a JWT token in the URL. The backend shifts to a **Direct User Invitation model**, which means no database record or user profile is pre-created in the database when an invitation is generated.
+
+The frontend flow is:
 
 1. User clicks invitation link → lands on signup page with JWT token in URL
-2. Frontend validates token and shows invitation details
+2. Frontend validates token (`POST /v1/public/user-invitations/validate`) and shows invitation details
 3. User signs up via Firebase Auth (email must match invitation email)
-4. Frontend accepts invitation with Firebase ID token
-5. User account is activated and linked to Firebase Auth
+4. Frontend accepts invitation (`POST /v1/public/user-invitations/accept`) with Firebase ID token
+5. The API handles account association:
+   - **If unregistered user**: Creates a brand-new user profile (status `ACTIVE`), lists account membership, and maps site roles.
+   - **If pre-registered user**: Appends the new account ID to the user's `accounts` membership list and creates roles under the new account scope.
 
 ## API Endpoints
 
@@ -25,14 +29,14 @@ Request Body:
 }
 ```
 
-**Purpose**: Validate JWT token and get invitation details before signup
+**Purpose**: Validate JWT token and get invitation details before signup. Since user documents are not pre-created, it parses details directly from the JWT.
 
 **Response** (200 OK):
 ```json
 {
   "valid": true,
   "user": {
-    "id": "user123",
+    "id": null, // null if unregistered, otherwise existing user ID
     "email": "user@example.com",
     "firstName": "Jane",
     "lastName": "Smith"
@@ -44,17 +48,16 @@ Request Body:
   "roles": [
     {
       "role": "TECHNICIAN",
-      "scope": "account",
-      "siteId": null
+      "scope": "site",
+      "siteId": "site_123"
     }
   ]
 }
 ```
 
 **Error Responses**:
-- `400`: Invalid or expired token, or token missing
-- `404`: User not found
-- `400`: User already accepted invitation (status is not PENDING)
+- `400`: Invalid or expired token, token missing, or user is already a member of the account.
+- `500`: Internal server error.
 
 #### 2. Accept Invitation
 ```
@@ -68,12 +71,11 @@ Request Body:
 }
 ```
 
-**Purpose**: Accept invitation and activate user account
+**Purpose**: Accept invitation and activate/append user account membership.
 
 **Important**: 
 - Requires Firebase ID token in Authorization header with `IDTOKEN.` prefix
 - Firebase Auth email must match the invitation email
-- User must have status=PENDING
 
 **Response** (200 OK):
 ```json
@@ -81,23 +83,24 @@ Request Body:
   "message": "Invitation accepted successfully",
   "user": {
     "id": "user123",
-    "accountId": "account456",
-    "firstName": "Jane",
-    "lastName": "Smith",
     "email": "user@example.com",
     "status": "ACTIVE",
     "authUserId": "firebase_user_id_123",
-    ...
+    "accounts": [
+      {
+        "accountId": "account456",
+        "invitedAt": "2026-06-09T23:00:00Z"
+      }
+    ],
+    "accountIds": ["account456"]
   }
 }
 ```
 
 **Error Responses**:
-- `400`: Token missing, invalid, or expired
+- `400`: Token missing, invalid, or expired, or user is already a member
 - `401`: Firebase ID token missing or invalid
 - `400`: Email mismatch (Firebase Auth email doesn't match invitation email)
-- `404`: User not found
-- `400`: Invitation already accepted or cancelled
 
 ## Implementation Steps
 
@@ -356,7 +359,7 @@ if (invitationToken) {
     // Invalid token - show error
     showError(validation.error || 'Invalid invitation link');
     // Optionally redirect to regular signup after delay
-  }
+    }
 } else {
   // No token - regular signup flow
   // Show normal signup form
