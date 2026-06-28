@@ -5,6 +5,10 @@
   },
   "item.label.Documentation": {
     "message": "תיעוד",
-    "description": "Navbar item label for Documentation"
+    "description": "Navbar item with label Documentation"
+  },
+  "logo.alt": {
+    "message": "לוגו Maintor",
+    "description": "The alt text of navbar logo"
   }
 }
