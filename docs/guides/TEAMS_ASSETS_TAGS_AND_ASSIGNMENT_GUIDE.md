@@ -105,10 +105,9 @@ When looking for active assignments that match an asset, the engine evaluates ma
 ### Tie-Break Rules
 If multiple active assignments match within the **same winning tier**, the engine evaluates them in order using the following tie-breaking rules:
 
-1. **Specificity / Distance** (Primarily for Location): The assignment closest to the asset wins. For example, an assignment on the asset's direct parent node (distance `1`) beats an assignment on the grandparent node (distance `2`).
-2. **Start Date**: The assignment with the latest/newest `start_date` wins.
-3. **Creation Time**: The assignment with the latest/newest `created` timestamp wins.
-4. **ID Sort**: A lexicographical sort on the assignment ID (`id`) is used as a strict, deterministic fallback.
+1. **Specificity / Distance**: The assignment closest to the asset wins. For example, under **Tag** scope, a tag value closest to the asset's assigned tag value in the hierarchy chain wins (smaller distance value).
+2. **List Order (Priority)**: The position of the assignment in the user-defined list. The higher the assignment is in the list (represented by a smaller `order_index` / `orderIndex`), the higher priority it takes. This order is managed directly by drag-and-drop reordering on the Responsibility page.
+3. **ID Sort**: A lexicographical sort on the assignment ID (`id`) is used as a final fallback for strict determinism.
 
 ---
 
