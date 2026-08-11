@@ -58,7 +58,7 @@ Authorization: Bearer <firebaseIdToken>
 ```json
 {
   "error": "Configuration error",
-  "message": "WhatsApp API credentials are not configured. Please set WHATSAPP_PHONE_NUMBER_ID and WHATSAPP_ACCESS_TOKEN environment variables."
+  "message": "WASENDER_API_KEY environment variable is not set"
 }
 ```
 
