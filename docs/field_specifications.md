@@ -57,7 +57,11 @@ Breakdown tickets track unscheduled/emergency maintenance events on assets.
     *   `manual_downtime_min` (Number)
     *   `is_downtime` (Boolean)
     *   `downtime_start` (String / ISO DateTime)
-    *   `labor_entries` (Array of objects containing `user_id`, `started`, `ended`, `duration_min`)
+    *   **`labor_entries`** (Array of objects containing `user_id`, `started`, `ended`, `duration_min`)
+        *   **Work Hours Auto-Creation & Calculation System Logic on Completion (`COMPLETED` status):**
+            1. **Explicit Manual Labor Override (Highest Priority):** If explicit manual labor entries (with custom start and end times) are defined on the ticket, the system saves **only** those manual entries. No default work hours are calculated or assigned to any other user.
+            2. **Selected Technician Override (No explicit times):** If a specific technician (or technicians) is selected in the labor section without start/end times, the system automatically calculates default work hours (`Breakdown Start Time` → `Completion Time`) and assigns them **only to the selected technician(s)**. No work hours are assigned to the completer or ticket assignee unless explicitly selected.
+            3. **Default Assignment (No labor entries touched):** If no labor entries were added or selected, the system automatically calculates default work hours (`Breakdown Start Time` → `Completion Time`) and assigns them **only to the logged-in user completing the ticket**. No work hours are assigned to the ticket assignee (unless the completer is the assignee).
 *   **`breakdown`** (Object):
     *   `root_cause` (String): (Required on `COMPLETED` status)
     *   `solution_description` (String)
