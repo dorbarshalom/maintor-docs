@@ -1,0 +1,36 @@
+[debug] [2026-08-26T10:55:56.042Z] ----------------------------------------------------------------------
+[debug] [2026-08-26T10:55:56.044Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy --only hosting:maintor-docs
+[debug] [2026-08-26T10:55:56.044Z] CLI Version:   15.20.0
+[debug] [2026-08-26T10:55:56.044Z] Platform:      darwin
+[debug] [2026-08-26T10:55:56.044Z] Node Version:  v24.12.0
+[debug] [2026-08-26T10:55:56.044Z] Time:          Wed Aug 26 2026 13:55:56 GMT+0300 (Israel Daylight Time)
+[debug] [2026-08-26T10:55:56.044Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-08-26T10:55:56.599Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-08-26T10:55:56.599Z] > authorizing via signed-in user (dorbarshalom@gmail.com)
+[debug] [2026-08-26T10:55:56.599Z] [iam] checking project maintor for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-08-26T10:55:56.599Z] Checked if tokens are valid: false, expires at: 1787583005652
+[debug] [2026-08-26T10:55:56.599Z] Checked if tokens are valid: false, expires at: 1787583005652
+[debug] [2026-08-26T10:55:56.599Z] > refreshing access token with scopes: []
+[debug] [2026-08-26T10:55:56.600Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-08-26T10:55:56.600Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-08-26T10:55:56.892Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-08-26T10:55:56.892Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-08-26T10:55:56.910Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/maintor:testIamPermissions [none]
+[debug] [2026-08-26T10:55:56.910Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/maintor:testIamPermissions  x-goog-user-project=maintor
+[debug] [2026-08-26T10:55:56.910Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/maintor:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-08-26T10:55:57.932Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/maintor:testIamPermissions 403
+[debug] [2026-08-26T10:55:57.933Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/maintor:testIamPermissions {"error":{"code":403,"message":"Caller does not have required permission to use project maintor. Grant the caller the roles/serviceusage.serviceUsageConsumer role, or a custom role with the serviceusage.services.use permission, by visiting https://console.developers.google.com/iam-admin/iam?project=maintor and then retry. Propagation of the new permission may take a few minutes.","status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"USER_PROJECT_DENIED","domain":"googleapis.com","metadata":{"consoleUrl":"https://console.developers.google.com/iam-admin/iam?project=maintor","containerInfo":"maintor","service":"cloudresourcemanager.googleapis.com","consumer":"projects/maintor"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Caller does not have required permission to use project maintor. Grant the caller the roles/serviceusage.serviceUsageConsumer role, or a custom role with the serviceusage.services.use permission, by visiting https://console.developers.google.com/iam-admin/iam?project=maintor and then retry. Propagation of the new permission may take a few minutes."},{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Google developer console IAM admin","url":"https://console.developers.google.com/iam-admin/iam?project=maintor"}]}]}}
+[debug] [2026-08-26T10:55:57.933Z] [iam] error while checking permissions, command may fail: Request to https://cloudresourcemanager.googleapis.com/v1/projects/maintor:testIamPermissions had HTTP Error: 403, Caller does not have required permission to use project maintor. Grant the caller the roles/serviceusage.serviceUsageConsumer role, or a custom role with the serviceusage.services.use permission, by visiting https://console.developers.google.com/iam-admin/iam?project=maintor and then retry. Propagation of the new permission may take a few minutes.
+[debug] [2026-08-26T10:55:57.934Z] Checked if tokens are valid: true, expires at: 1787745355892
+[debug] [2026-08-26T10:55:57.934Z] Checked if tokens are valid: true, expires at: 1787745355892
+[debug] [2026-08-26T10:55:57.934Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/maintor [none]
+[debug] [2026-08-26T10:55:58.365Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/maintor 403
+[debug] [2026-08-26T10:55:58.365Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/maintor {"error":{"code":403,"message":"The caller does not have permission","status":"PERMISSION_DENIED"}}
+[debug] [2026-08-26T10:55:58.366Z] Request to https://firebase.googleapis.com/v1beta1/projects/maintor had HTTP Error: 403, The caller does not have permission
+[debug] [2026-08-26T10:55:58.367Z] FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects/maintor had HTTP Error: 403, The caller does not have permission
+    at responseToError (/usr/local/lib/node_modules/firebase-tools/lib/responseToError.js:53:12)
+    at RetryOperation._fn (/usr/local/lib/node_modules/firebase-tools/lib/apiv2.js:333:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[error] 
+[error] Error: Failed to get Firebase project maintor. Please make sure the project exists and your account has permission to access it.
