@@ -71,3 +71,10 @@ The platform is designed to effortlessly introduce `IN_PROGRESS` to breakdown ti
   1. `IN_PROGRESS` option in breakdown filters and status chips.
   2. Auto-transitioning breakdown tickets from `OPEN` to `IN_PROGRESS` when clicking **Start** or **Save**.
   3. No breaking API changes or database migrations required.
+
+---
+
+## 5. Related Documentation
+
+* For details on how technician labor and work hours are calculated across ticket types, see [Work Hours & Labor Tracking Logic (Planned vs. Breakdown)](./work_hours_logic.md).
+
