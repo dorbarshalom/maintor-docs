@@ -34,10 +34,10 @@ When a ticket is marked **Completed**, Maintor calculates work hours using the f
 ```
 
 ### Priority 1: Explicit Manual Entries & Mobile Timers
-If technicians use the mobile app timer (**Start** > **Completed**) or manually enter labor records (with specific start and end times or durations), the platform saves **only** those records. No automatic fallback calculations are triggered.
+If technicians use the mobile app timer (**Start** > **Completed**) or manually enter labor records (with specific start and end times or explicit durations), the platform saves **only** those records. No automatic fallback calculations are triggered.
 
 ### Priority 2: Automatic Fallback Calculation
-If a ticket is completed with no manual labor entries, Maintor automatically calculates the duration from **Ticket Work Start Time** to **Completion Time**.
+If a ticket is completed without explicit manual labor records (for example, when a technician was selected in the work hours box without entering timestamps, or when no labor entries were entered at all), Maintor automatically calculates the duration from **Ticket Work Start Time** to **Completion Time**.
 
 ---
 
@@ -64,11 +64,13 @@ Planned tickets have broad scheduled execution windows (e.g., 7 to 30 days) to a
 
 When automatic work hours are calculated upon completion, Maintor attributes the hours according to the technician selection:
 
-1. **Technicians Selected in Work Hours Box**:
-   * If one or more technicians are chosen in the ticket's Work Hours / Labor section, the calculated duration is credited to **each selected technician**.
-   * *Example*: If Technicians A and B are selected and the job took 1 hour, each receives 1 hour of labor (reflecting concurrent teamwork).
+1. **Technicians Selected in Work Hours Box (No Start Time Required)**:
+   * Users can choose one or more technicians in the ticket's Work Hours / Labor section **without having to set a start time or end time**.
+   * Setting a start time is completely optional under all circumstances. If left blank, the ticket can be saved and updated freely.
+   * When the ticket is marked **Completed**, Maintor's automatic calculation calculates the active work duration (from the ticket work start reference to completion) and credits that duration to **each selected technician**.
+   * *Example*: If Technicians A and B are selected without entering start times and the job took 1 hour, each receives 1 hour of labor upon completion.
 2. **Default Fallback (No Technicians Selected)**:
-   * If the Work Hours section is left unassigned, the hours are automatically credited to the **user who marked the ticket Completed**.
+   * If the Work Hours section is left completely unassigned, the hours are automatically credited to the **user who marked the ticket Completed**.
    * Hours are not assigned to passive ticket assignees unless they performed the completion or were selected in the work hours box.
 
 ---
