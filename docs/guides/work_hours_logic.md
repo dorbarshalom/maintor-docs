@@ -1,64 +1,107 @@
-# Work Hours & Labor Tracking Logic (Planned vs. Breakdown)
+# Work Hours & Labor Tracking Logic
 
-This document explains the business and operational logic for how technician work hours are calculated and reported across Maintor.
-
----
-
-## 1. Core Principle
-
-Work hours represent the human labor spent servicing assets. Because **Planned Maintenance** and **Breakdown Maintenance** serve fundamentally different operational purposes, their work hours are handled with distinct business logic:
-
-* **Planned Maintenance**: Strictly measures **actual recorded technician labor**. If no hours are entered, work hours remain **zero**. There is no automatic estimation or time-window fallback.
-* **Breakdown Maintenance**: Represents **reactive incident resolution**. If technicians do not log individual work entries, the system aligns labor with the actual incident duration (from when the breakdown occurred until it was resolved).
+This guide explains how technician work hours are calculated, attributed, and reported across all ticket types in Maintor.
 
 ---
 
-## 2. Planned Maintenance Logic
+## 1. Overview & Core Principle
 
-Planned maintenance tasks are generated on schedules (weekly, monthly, quarterly) and have broad execution windows (often 7 to 30 days) during which the work can be completed.
+Work hours represent the human labor spent servicing machines, equipment, and facilities. 
 
-### Strict Actuals Only
-1. **No Window Fallback**: The duration between when a planned task opens and when it is marked completed is **not** used as work duration. A task open for 3 weeks does not mean 3 weeks of continuous work.
-2. **Zero Default**: If a technician completes a planned ticket without logging time, the ticket records **0 work hours**.
-3. **No Estimated Duration Fallbacks**: Template estimates (such as an estimated 45-minute inspection) are planning guidelines only and are **never** substituted as actual logged labor.
-4. **No Arbitrary Padding**: The system does not apply default padding (such as automatic 30-minute minimums).
+To maintain clean and reliable maintenance analytics without burdening technicians on the plant floor with unnecessary administrative paperwork, Maintor uses a **unified work hours calculation system** for both **Breakdown Maintenance** and **Planned Maintenance**:
 
-### How Planned Work Hours Are Recorded
-Planned work hours are logged through only two valid operational workflows:
-* **Live Timer ("Start > Completed")**: The technician taps **Start** in the mobile app when beginning work and taps **Completed** (or **Stop**) when finished. The system logs the active elapsed time.
-* **Manual Entry**: The technician or manager manually enters labor records with specific dates, times, or durations.
+* **Accuracy First**: Whenever technicians track live time or submit manual labor entries, those exact hours are preserved.
+* **Smart Fallback**: If a ticket is completed without manual labor records, Maintor automatically calculates work hours based on the ticket's active work span—preventing jobs from registering misleading "0 hours" in reporting.
+* **No Artificial Padding**: Estimates and arbitrary duration minimums are never used as actual labor. Work hours always reflect real operational elapsed time or explicitly recorded entries.
 
 ---
 
-## 3. Breakdown Maintenance Logic
+## 2. Priority Hierarchy: How Work Hours Are Recorded
 
-Breakdown maintenance tasks represent urgent, unscheduled machine failures and stoppages.
+When a ticket is marked **Completed**, Maintor calculates work hours using the following order of priority:
 
-### Incident Window Alignment
-* When an asset breaks down, the primary concern is the total downtime and repair span.
-* If technicians do not itemize separate labor entries, the platform defaults the work duration to the elapsed time between the breakdown event and the final resolution.
-* This ensures that mean time to repair (MTTR) and operational labor reflect the actual stoppage span without requiring extra administrative overhead during an emergency.
-* If technicians do enter explicit labor entries, those explicit entries take priority.
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 1. Explicit Manual Entries & Mobile Timers (Highest Priority)│
+│    Saved as recorded; no auto-calculation applied.          │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ (If no labor entries exist)
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 2. Automatic Fallback Calculation                           │
+│    Elapsed time from Ticket Work Start → Completion Time    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Priority 1: Explicit Manual Entries & Mobile Timers
+If technicians use the mobile app timer (**Start** > **Completed**) or manually enter labor records (with specific start and end times or durations), the platform saves **only** those records. No automatic fallback calculations are triggered.
+
+### Priority 2: Automatic Fallback Calculation
+If a ticket is completed with no manual labor entries, Maintor automatically calculates the duration from **Ticket Work Start Time** to **Completion Time**.
 
 ---
 
-## 4. Operational Comparison
+## 3. How Ticket Start Time Is Determined
 
-| Feature | Planned Maintenance | Breakdown Maintenance |
+Because Breakdown tickets and Planned tickets follow different operational workflows, the start reference time is determined as follows:
+
+### Breakdown Tickets
+* **Start Reference**: The breakdown occurrence time (or the ticket creation timestamp).
+* **Rationale**: Reflects the real emergency response and recovery window from incident inception to full resolution.
+
+### Planned Maintenance Tickets
+Planned tickets have broad scheduled execution windows (e.g., 7 to 30 days) to allow flexible scheduling. To ensure work hours reflect genuine maintenance effort rather than the entire scheduling window, start time is determined by:
+
+1. **Standard Workflow (Open → In Progress → Completed)**:
+   * **Start Reference**: The timestamp when the ticket transitioned to **In Progress** (for example, when a technician tapped "Start" on mobile or saved intermediate updates on the ticket).
+2. **Direct Completion (Open → Completed)**:
+   * If a technician completed the task in a single step directly from **Open** without first setting it to In Progress, Maintor uses the **execution window start time** (or scheduled date) as the start reference.
+   * This ensures the completed ticket receives valid work hours and prevents a 0-hour state in workload reports.
+
+---
+
+## 4. Technician Attribution: Who Receives the Work Hours?
+
+When automatic work hours are calculated upon completion, Maintor attributes the hours according to the technician selection:
+
+1. **Technicians Selected in Work Hours Box**:
+   * If one or more technicians are chosen in the ticket's Work Hours / Labor section, the calculated duration is credited to **each selected technician**.
+   * *Example*: If Technicians A and B are selected and the job took 1 hour, each receives 1 hour of labor (reflecting concurrent teamwork).
+2. **Default Fallback (No Technicians Selected)**:
+   * If the Work Hours section is left unassigned, the hours are automatically credited to the **user who marked the ticket Completed**.
+   * Hours are not assigned to passive ticket assignees unless they performed the completion or were selected in the work hours box.
+
+---
+
+## 5. Estimated Duration vs. Actual Work Hours
+
+Planned maintenance templates and individual planned tickets include an optional **Estimated duration** field (Hours and Minutes):
+
+* **Planning & Scheduling Only**: The estimated duration helps maintenance managers forecast upcoming workloads and schedule technician shifts.
+* **Default Value**: This field has no default value (remains empty / null unless configured).
+* **Never Substituted for Actuals**: Estimated duration is **never** used as a fallback for actual work hours. If a ticket was estimated at 2 hours but resolved in 45 minutes, reports reflect the 45 minutes of actual elapsed time (or recorded labor), keeping analytics grounded in reality.
+
+---
+
+## 6. Summary Comparison
+
+| Operational Aspect | Breakdown Maintenance | Planned Maintenance |
 | :--- | :--- | :--- |
-| **Primary Goal** | Routine asset upkeep | Rapid failure recovery & uptime restoration |
-| **Execution Window** | Broad scheduled window (days to weeks) | Immediate reactive event |
-| **Unlogged Work Hours** | Strictly **0 hours** | Defaults to breakdown event duration |
-| **Live Mobile Timer** | Supported (**Start > Completed**) | Supported (**Start > Completed**) |
-| **Manual Labor Entries** | Supported | Supported |
-| **Template Estimate Fallback** | **None** (remains 0) | Not applicable |
-| **Arbitrary Minimum Padding** | **None** (remains 0) | Not applicable |
+| **Primary Goal** | Incident response & asset uptime recovery | Routine preventive maintenance & inspection |
+| **Manual Labor & Mobile Timers** | Fully supported (Highest priority) | Fully supported (Highest priority) |
+| **Auto-Calculation Trigger** | When completed without manual labor | When completed without manual labor |
+| **Start Time Reference** | Incident breakdown start time | `In Progress` transition timestamp |
+| **Direct Completion Fallback** | Ticket creation time | Execution window start / scheduled date |
+| **End Time Reference** | Ticket completion time | Ticket completion time |
+| **Technician Attribution** | Selected technician(s) &rarr; Fallback: Completing user | Selected technician(s) &rarr; Fallback: Completing user |
+| **Estimated Duration Role** | N/A | Informational planning & scheduling only |
 
 ---
 
-## 5. Reporting & Analytics Consistency
+## 7. Reports & Analytics Impact
 
-Across all dashboards, monthly performance reports, and exports:
-* **Planned Work Hours KPI**: Aggregates only genuine labor logged by technicians. Empty entries do not inflate maintenance costs or workload statistics.
-* **Breakdown Work Hours KPI**: Reflects repair labor, ensuring downtime recovery is fully visible even if technicians did not log separate itemized entries.
-* **Workload Comparisons**: The comparison of Planned vs. Breakdown maintenance accurately reflects real maintenance hours rather than calendar window differences.
+By unifying the work hours fallback across all ticket types:
+
+* **No Disappearing Labor**: Planned maintenance tasks completed by technicians are consistently counted in technician workload and site maintenance hours, eliminating 0-hour discrepancies.
+* **Clean Team Metrics**: Team workload charts, user activity logs, and monthly management reports reflect both planned and breakdown hours accurately.
+* **Fair Attribution**: Credit for completed tasks is reliably assigned to the personnel who performed the work or completed the ticket.
