@@ -58,11 +58,11 @@ Tickets don't show up as actionable on the dashboard immediately. A status trans
 
 ---
 
-### 3. Missed Deadlines (Status: `OPEN` ➔ `SKIPPED`)
+### 3. Missed Deadlines (Status: `OPEN` / `IN_PROGRESS` ➔ `SKIPPED`)
 
-If an `OPEN` ticket is ignored and its execution window expires, it is automatically marked as skipped to prevent a massive backlog of old, undone tasks. The same hourly Cloud Scheduler job orchestrates this by invoking the `updateSkippedTickets` handler:
+If a planned ticket is uncompleted (`OPEN` or `IN_PROGRESS`) and its execution window expires, it is automatically marked as skipped to prevent a massive backlog of old, undone tasks. The hourly Cloud Scheduler job orchestrates this by invoking the `updateSkippedTickets` handler (and `listTickets` reconciles this on-the-fly):
 
-- The handler checks all `OPEN` planned tickets that have not yet been started.
+- The handler checks all uncompleted planned tickets (`PLANNED`, `OPEN`, and `IN_PROGRESS`).
 - It compares the current time against the ticket's `executionWindowDays` (defined in the template).
 - If the current time is past the allowed execution window end date, the system automatically transitions the ticket's status to **`SKIPPED`**.
 
@@ -72,4 +72,20 @@ Once a ticket is `OPEN`, further status transitions are handled manually by user
 
 - By calling the API (`PUT /v1/accounts/{accountId}/tickets/{ticketId}/status`), users can transition the task to **`IN_PROGRESS`**, **`COMPLETED`**, and eventually **`CLOSED`**.
 - The API validates these transitions based on account-level settings, which dictate whether specific statuses (like `IN_PROGRESS`) are enabled or disabled for the particular workspace.
+
+### 5. Pausing & Reactivating Templates (`isActive: false` vs `isActive: true`)
+
+When a user switches off a recurring template (pausing it) or turns it back on (reactivating):
+
+- **Pausing a template (`isActive: false`)**:
+  - The template itself remains intact in the database (`planned_maintenance` collection).
+  - Background cron generation ignores inactive templates (`isActive !== true`).
+  - An asynchronous cleanup task (`operation: 'cleanup'`) is queued immediately via Cloud Tasks.
+  - The cleanup task deletes all future unstarted ticket instances (`scheduled_date > now`, statuses in `PLANNED`, `OPEN`, `DRAFT`).
+  - Past tickets (`scheduled_date <= now`) and any tickets with recorded progress (`IN_PROGRESS`, `COMPLETED`, `CLOSED`, `SKIPPED`) are preserved as permanent historical records.
+- **Reactivating a template (`isActive: true`)**:
+  - An asynchronous regeneration task (`operation: 'regenerate'`) and calendar update task are queued immediately via Cloud Tasks.
+  - Future ticket instances are calculated and created covering the upcoming 52-week schedule.
+  - The recurring cron scheduler resumes rolling generation for this template.
+
 

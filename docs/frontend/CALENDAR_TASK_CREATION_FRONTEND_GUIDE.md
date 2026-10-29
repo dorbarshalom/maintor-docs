@@ -116,10 +116,15 @@ Tickets Appear in Calendar
 **Response:** Returns immediately with the updated template
 
 **What Happens:**
-- Template is updated in database
-- Future tickets are deleted and regenerated (if template is active)
-- Calendar update task is queued asynchronously
-- Response returns immediately
+- Template is updated in the database immediately.
+- **If template is paused / inactive (`isActive: false`)**:
+  - A cleanup task is queued immediately to delete all future unstarted ticket instances (`scheduled_date > now`, status `PLANNED`, `OPEN`, `DRAFT`).
+  - Past tickets and in-progress/completed tickets are preserved.
+  - The template itself remains intact in the database.
+- **If template is active / reactivated (`isActive: true`)**:
+  - Future tickets are regenerated for the next 52 weeks in one atomic sequence.
+  - Calendar update task is queued asynchronously.
+- Response returns immediately.
 
 **Example Request:**
 ```json

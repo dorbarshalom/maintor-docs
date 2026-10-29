@@ -156,7 +156,7 @@ Planned Maintenance templates define recurring schedules and standard checklist 
         *   `description` (String): Task checklist description.
     *   `ownerUserId` (String): Default owner user ID.
     *   *Optional template fields:* `priority` (Integer, 1-5), `estimatedDurationMin` (Integer), `assignees` (Array of assignee objects containing `user_id`).
-*   **`isActive`** (Boolean): Whether the recurrence pattern is active and scheduled for ticket generation.
+*   **`isActive`** (Boolean): Whether the recurrence pattern is active and scheduled for ticket generation. When set to `false` (pausing/deactivating), the template definition remains saved, but all future unstarted ticket instances (`scheduled_date > now`, status `PLANNED`, `OPEN`, `DRAFT`) are automatically deleted from the work schedule. When reactivated (`true`), new ticket instances are automatically generated for the upcoming 52-week schedule.
 
 ### Non-Required Fields
 #### Optional Input Fields (User Editable)

@@ -115,11 +115,16 @@ Tickets Appear in Calendar
 
 **Response:** Returns immediately with the updated template
 
-**What Happens:**
-- Template is updated in database
-- Future tickets are deleted and regenerated (if template is active)
-- Calendar update task is queued asynchronously
-- Response returns immediately
+**מה קורה במערכת (What Happens):**
+- התבנית מתעדכנת במסד הנתונים באופן מיידי.
+- **כאשר התבנית מושהית / אינה פעילה (`isActive: false`)**:
+  - משימת ניקוי (Cleanup task) מוזנקת באופן מיידי למחיקת כל מופעי הכרטיסים העתידיים שטרם הוחל בביצועם (`scheduled_date > now`, בסטטוס `PLANNED`, `OPEN`, `DRAFT`).
+  - כרטיסי עבר וכרטיסים בביצוע/הושלמו נשמרים כהיסטוריה.
+  - הגדרת התבנית נשמרת ללא פגע במסד הנתונים.
+- **כאשר התבנית פעילה / מופעלת מחדש (`isActive: true`)**:
+  - כרטיסים עתידיים נוצרים מחדש ל-52 השבועות הקרובים ברצף אטומי יחיד.
+  - משימת עדכון לוח השנה מוזנקת ברקע (אסינכרונית).
+- התשובה מוחזרת מיידית ל-Frontend.
 
 **Example Request:**
 ```json
