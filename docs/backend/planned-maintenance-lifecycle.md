@@ -80,9 +80,12 @@ When a user switches off a recurring template (pausing it) or turns it back on (
 - **Pausing a template (`isActive: false`)**:
   - The template itself remains intact in the database (`planned_maintenance` collection).
   - Background cron generation ignores inactive templates (`isActive !== true`).
-  - An asynchronous cleanup task (`operation: 'cleanup'`) is queued immediately via Cloud Tasks.
-  - The cleanup task deletes all future unstarted ticket instances (`scheduled_date > now`, statuses in `PLANNED`, `OPEN`, `DRAFT`).
-  - Past tickets (`scheduled_date <= now`) and any tickets with recorded progress (`IN_PROGRESS`, `COMPLETED`, `CLOSED`, `SKIPPED`) are preserved as permanent historical records.
+  - **Synchronous Immediate Cleanup**: In `updatePlannedMaintenance`, future unstarted tickets are deleted immediately via `deleteFutureTickets` during the request before returning `200 OK`, ensuring that Work Schedule refreshes instantly without stale entries.
+  - **Asynchronous Task Redundancy**: A backup cleanup task (`operation: 'cleanup'`) is also enqueued via Cloud Tasks.
+  - **Race Condition Prevention Guard**: In `processTicketGenerationTask.js`, `generate` and `regenerate` operations check whether `template.isActive === false`. If the template was paused while a generation task was enqueued, generation is automatically aborted to prevent orphaned future tickets from being created.
+  - **What Gets Deleted vs. Preserved**:
+    - All future unstarted ticket instances are deleted: any ticket with `status: 'PLANNED'`, and any ticket with `status: { $in: ['OPEN', 'DRAFT'] }` scheduled from the cutoff date onwards.
+    - Past tickets and any tickets with recorded activity (`IN_PROGRESS`, `COMPLETED`, `CLOSED`, `SKIPPED`) are preserved as permanent historical records.
 - **Reactivating a template (`isActive: true`)**:
   - An asynchronous regeneration task (`operation: 'regenerate'`) and calendar update task are queued immediately via Cloud Tasks.
   - Future ticket instances are calculated and created covering the upcoming 52-week schedule.
